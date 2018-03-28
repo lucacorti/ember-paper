@@ -1,10 +1,11 @@
 /**
  * @module ember-paper
  */
-import Ember from 'ember';
+import { assert } from '@ember/debug';
+
+import { computed } from '@ember/object';
 import layout from '../templates/components/paper-menu';
 import BasicDropdownComponent from 'ember-basic-dropdown/components/basic-dropdown';
-const { assert, computed } = Ember;
 
 const MENU_EDGE_MARGIN = 8;
 
@@ -99,7 +100,7 @@ export default BasicDropdownComponent.extend({
 
     switch (positionMode.top) {
       case 'target':
-        position.top = existingOffsets.top + originNodeRect.top - alignTargetRect.top;
+        position.top = existingOffsets.top + originNodeRect.top - (alignTargetRect.top - openMenuNodeRect.top);
         break;
       case 'cascade':
         position.top = originNodeRect.top - parseFloat(menuStyle.paddingTop) - originNode.style.top;
@@ -113,7 +114,7 @@ export default BasicDropdownComponent.extend({
 
     switch (positionMode.left) {
       case 'target': {
-        position.left = existingOffsets.left + originNodeRect.left - alignTargetRect.left;
+        position.left = existingOffsets.left + originNodeRect.left - (alignTargetRect.left - openMenuNodeRect.left);
         transformOrigin += 'left';
         break;
       }

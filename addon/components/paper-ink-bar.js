@@ -1,11 +1,8 @@
-import Ember from 'ember';
-import layout from '../templates/components/paper-nav-ink-bar';
-
-const { computed, Component, String: { htmlSafe } } = Ember;
+import { computed } from '@ember/object';
+import Component from '@ember/component';
+import { htmlSafe } from '@ember/string';
 
 export default Component.extend({
-  layout,
-
   tagName: 'md-ink-bar',
 
   attributeBindings: ['style'],

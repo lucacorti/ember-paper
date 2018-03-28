@@ -1,8 +1,6 @@
-import Ember from 'ember';
+import Component from '@ember/component';
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
-
-const { Component } = Ember;
 
 moduleForComponent('paper-form', 'Integration | Component | paper form', {
   integration: true
@@ -41,20 +39,46 @@ test('`isInvalid` and `isValid` work as expected', function(assert) {
   assert.equal(this.$('.valid-div').length, 0);
 });
 
-test('form `onSubmit` action is invoked', function(assert) {
+test('form `onSubmit` action is invoked and `onInvalid` is not', function(assert) {
   assert.expect(1);
 
   this.set('onSubmit', () => {
     assert.ok(true);
   });
 
+  this.set('onInvalid', () => {
+    assert.notOk(true);
+  });
+
   this.render(hbs`
-    {{#paper-form onSubmit=(action onSubmit) as |form|}}
+    {{#paper-form onSubmit=(action onSubmit) onInvalid=(action onInvalid) as |form|}}
       {{form.input value=foo onChange=(action (mut foo)) label="Foo"}}
       {{form.input value=bar onChange=(action (mut bar)) label="Bar"}}
 
       <button type="button" onclick={{action form.onSubmit}}>Submit</button>
 
+    {{/paper-form}}
+  `);
+
+  this.$('button').click();
+});
+
+test('form `onInvalid` action is invoked and `onSubmit` is not when the form is not valid', function(assert) {
+  assert.expect(1);
+
+  this.set('onSubmit', () => {
+    assert.notOk(true);
+  });
+
+  this.set('onInvalid', () => {
+    assert.ok(true);
+  });
+
+  this.render(hbs`
+    {{#paper-form onSubmit=(action onSubmit) onInvalid=(action onInvalid) as |form|}}
+      {{form.input value="" required=true onChange=null}}
+
+      <button type="submit">Submit</button>
     {{/paper-form}}
   `);
 

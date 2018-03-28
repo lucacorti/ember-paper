@@ -1,5 +1,11 @@
-import Ember from 'ember';
-const { computed, assign, run, A, Service, tryInvoke, Object: EObject } = Ember;
+import { reads } from '@ember/object/computed';
+import { assign } from '@ember/polyfills';
+import { run } from '@ember/runloop';
+import { A } from '@ember/array';
+import Service from '@ember/service';
+import { tryInvoke } from '@ember/utils';
+import EObject from '@ember/object';
+import config from 'ember-get-config';
 
 const DEFAULT_PROPS = {
   duration: 3000,
@@ -9,7 +15,7 @@ const DEFAULT_PROPS = {
 export default Service.extend({
   queue: A(),
 
-  activeToast: computed.reads('queue.firstObject'),
+  activeToast: reads('queue.firstObject'),
 
   show(text, options) {
     let t = EObject.create(assign({ text, show: true }, this.buildOptions(options)));
@@ -38,6 +44,10 @@ export default Service.extend({
   },
 
   buildOptions(options) {
-    return assign({}, DEFAULT_PROPS, options);
+    let toasterOptions = {};
+    if (config['ember-paper'] && config['ember-paper']['paper-toaster']) {
+      toasterOptions = config['ember-paper']['paper-toaster'];
+    }
+    return assign({}, DEFAULT_PROPS, toasterOptions, options);
   }
 });

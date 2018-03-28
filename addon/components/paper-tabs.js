@@ -1,9 +1,11 @@
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
+import { gt } from '@ember/object/computed';
+import { computed, observer } from '@ember/object';
+import Component from '@ember/component';
+import { htmlSafe } from '@ember/string';
 import layout from '../templates/components/paper-tabs';
 import { ParentMixin } from 'ember-composability-tools';
 import ColorMixin from 'ember-paper/mixins/color-mixin';
-
-const { computed, Component, String: { htmlSafe }, inject } = Ember;
 
 export default Component.extend(ParentMixin, ColorMixin, {
   layout,
@@ -12,16 +14,26 @@ export default Component.extend(ParentMixin, ColorMixin, {
   classNames: ['md-no-tab-content', 'md-default-theme'],
   attributeBindings: ['borderBottom:md-border-bottom'],
 
-  constants: inject.service(),
+  constants: service(),
 
   selected: 0, // select first tab by default
 
-  _selectedTab: computed('childComponents.@each.value', 'selected', function() {
-    return this.get('childComponents').findBy('value', this.get('selected'));
+  _selectedTab: computed('childComponents.@each.isSelected', function() {
+    return this.get('childComponents').findBy('isSelected');
   }),
 
-  _previousSelectedTab: computed('childComponents.@each.value', 'previousSelected', function() {
-    return this.get('childComponents').findBy('value', this.get('previousSelected'));
+  _selectedTabDidChange: observer('_selectedTab', function() {
+    let selectedTab = this.get('_selectedTab');
+    let previousSelectedTab = this.get('_previousSelectedTab');
+
+    if (selectedTab === previousSelectedTab) {
+      return;
+    }
+
+    this.setMovingRight();
+    this.fixOffsetIfNeeded();
+
+    this.set('_previousSelectedTab', selectedTab);
   }),
 
   noInkBar: false,
@@ -53,15 +65,6 @@ export default Component.extend(ParentMixin, ColorMixin, {
   shouldStretch: computed('shouldPaginate', 'currentStretch', function() {
     return !this.get('shouldPaginate') && this.get('currentStretch');
   }),
-
-  didReceiveAttrs() {
-    this._super(...arguments);
-    if (this.get('selected') !== this.get('previousSelected')) {
-      this.setMovingRight();
-      this.fixOffsetIfNeeded();
-      this.set('previousSelected', this.get('selected'));
-    }
-  },
 
   didInsertElement() {
     this._super(...arguments);
@@ -145,7 +148,7 @@ export default Component.extend(ParentMixin, ColorMixin, {
   },
 
   currentOffset: 0,
-  canPageBack: computed.gt('currentOffset', 0),
+  canPageBack: gt('currentOffset', 0),
   canPageForward: computed('wrapperWidth', 'currentOffset', 'canvasWidth', function() {
     return this.get('wrapperWidth') - this.get('currentOffset') > this.get('canvasWidth');
   }),

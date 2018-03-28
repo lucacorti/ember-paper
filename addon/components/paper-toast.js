@@ -1,10 +1,17 @@
 /**
  * @module ember-paper
  */
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
+
+import { or } from '@ember/object/computed';
+import $ from 'jquery';
+import Component from '@ember/component';
+import { computed } from '@ember/object';
+import { run } from '@ember/runloop';
+import { guidFor } from '@ember/object/internals';
+import { getOwner } from '@ember/application';
 import layout from '../templates/components/paper-toast';
 
-const { $, Component, computed, inject, testing, run, guidFor } = Ember;
 /**
  * @class PaperToast
  * @extends Ember.Component
@@ -31,12 +38,14 @@ export default Component.extend({
 
   // Calculate a default that is always valid for the parent of the backdrop.
   wormholeSelector: '#paper-toast-fab-wormhole',
-  defaultedParent: computed.or('parent', 'wormholeSelector'),
+  defaultedParent: or('parent', 'wormholeSelector'),
 
   // Calculate the id of the wormhole destination, setting it if need be. The
   // id is that of the 'parent', if provided, or 'paper-wormhole' if not.
   destinationId: computed('defaultedParent', function() {
-    if (testing && !this.get('parent')) {
+    let config = getOwner(this).resolveRegistration('config:environment');
+
+    if (config.environment === 'test' && !this.get('parent')) {
       return 'ember-testing';
     }
     let parent = this.get('defaultedParent');
@@ -56,7 +65,7 @@ export default Component.extend({
     }
   }),
 
-  constants: inject.service(),
+  constants: service(),
 
   _destroyMessage() {
     if (!this.isDestroyed) {
@@ -104,7 +113,7 @@ export default Component.extend({
     $(`#${this.get('destinationId')}`).removeClass(`md-toast-open-${y} md-toast-animating`);
   },
 
-  swipe()  {
+  swipeAction()  {
     if (this.get('swipeToClose')) {
       this.sendAction('onClose');
     }

@@ -1,14 +1,14 @@
-import Ember from 'ember';
-
-const { inject, Controller } = Ember;
+import { inject as service } from '@ember/service';
+import Controller from '@ember/controller';
 
 export default Controller.extend({
   duration: 3000,
   positionX: 'left',
   positionY: 'bottom',
   toastText: 'Hello world',
+  toastClass: '',
 
-  paperToaster: inject.service(),
+  paperToaster: service(),
 
   actions: {
     /* Toast */
@@ -21,13 +21,15 @@ export default Controller.extend({
     // BEGIN-SNIPPET toaster
     openServiceToast() {
       this.get('paperToaster').show(this.get('toastText'), {
-        duration: 4000
+        duration: 4000,
+        toastClass: this.get('toastClass')
       });
     },
 
     openServiceActionToast() {
       this.get('paperToaster').show(this.get('toastText'), {
         duration: 4000,
+        toastClass: this.get('toastClass'),
         action: {
           label: 'Undo',
           accent: true,

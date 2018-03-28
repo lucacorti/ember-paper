@@ -1,9 +1,7 @@
-import Ember from 'ember';
+import EmberRouter from '@ember/routing/router';
 import config from './config/environment';
 
-const { Router: ERouter } = Ember;
-
-const Router = ERouter.extend({
+const Router = EmberRouter.extend({
   location: config.locationType,
   rootURL: config.rootURL
 });
@@ -38,6 +36,7 @@ Router.map(function() {
     this.route('select');
     this.route('sidenav');
     this.route('slider');
+    this.route('speed-dial');
     this.route('switch');
     this.route('toast');
     this.route('toolbar');

@@ -1,7 +1,7 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import run from 'ember-runloop';
+import { run } from '@ember/runloop';
 import $ from 'jquery';
 
 moduleForComponent('paper-select', 'Integration | Component | paper select', {
@@ -35,6 +35,7 @@ function nativeClick(selector, options = {}) {
   let mousedown = new window.Event('mousedown', { bubbles: true, cancelable: true, view: window });
   let mouseup = new window.Event('mouseup', { bubbles: true, cancelable: true, view: window });
   let click = new window.Event('click', { bubbles: true, cancelable: true, view: window });
+  mousedown.button = mouseup.button = click.button = options.button || 0;
   Object.keys(options).forEach((key) => {
     mousedown[key] = options[key];
     mouseup[key] = options[key];

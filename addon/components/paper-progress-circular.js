@@ -1,13 +1,16 @@
 /**
  * @module ember-paper
  */
-import Ember from 'ember';
+import { equal } from '@ember/object/computed';
+
+import Component from '@ember/component';
+import { computed } from '@ember/object';
+import { isPresent } from '@ember/utils';
+import { htmlSafe } from '@ember/string';
 import layout from '../templates/components/paper-progress-circular';
 import ColorMixin from 'ember-paper/mixins/color-mixin';
 import clamp from 'ember-paper/utils/clamp';
 import { rAF, cAF } from 'ember-css-transitions/mixins/transition-mixin';
-
-const { Component, computed, isPresent, String: { htmlSafe } } = Ember;
 
 const MODE_DETERMINATE = 'determinate';
 const MODE_INDETERMINATE = 'indeterminate';
@@ -56,7 +59,7 @@ export default Component.extend(ColorMixin, {
     return mode === MODE_DETERMINATE || mode === MODE_INDETERMINATE ? `md-mode-${mode}` : 'ng-hide';
   }),
 
-  isIndeterminate: computed.equal('mode', MODE_INDETERMINATE),
+  isIndeterminate: equal('mode', MODE_INDETERMINATE),
 
   strokeWidth: computed('strokeRatio', 'diameter', function() {
     return this.get('strokeRatio') * this.get('diameter');
@@ -95,10 +98,6 @@ export default Component.extend(ColorMixin, {
 
   pathStyle: computed('strokeWidth', function() {
     return htmlSafe(`stroke-width: ${this.get('strokeWidth')}px`);
-  }),
-
-  svgArc: computed('value', 'oldValue', 'diameter', function() {
-
   }),
 
   didInsertElement() {
@@ -155,6 +154,10 @@ export default Component.extend(ColorMixin, {
 
   lastAnimationId: 0,
   renderCircle(animateFrom, animateTo, ease = linearEase, animationDuration = 100, iterationCount = 0, dashLimit = 100) {
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
+
     let id = ++this.lastAnimationId;
     let startTime = now();
     let changeInValue = animateTo - animateFrom;
